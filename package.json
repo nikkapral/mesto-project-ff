@@ -4,7 +4,7 @@
   "description": "https://github.com/nikkapral/mesto-project-ff",
   "main": "index.js",
   "scripts": {
-    "build": "rd /s /q dist && webpack",
+    "build": "webpack --mode production",
     "dev": "webpack serve --open"
   },
   "repository": {
@@ -18,16 +18,21 @@
     "url": "https://github.com/nikkapral/mesto-project-ff/issues"
   },
   "homepage": "https://github.com/nikkapral/mesto-project-ff#readme",
+  "dependencies": {
+    "core-js": "^3.43.0"
+  },
   "devDependencies": {
+    "@babel/core": "^7.27.4",
+    "@babel/preset-env": "^7.27.2",
     "autoprefixer": "^10.4.21",
     "babel-loader": "^10.0.0",
     "clean-webpack-plugin": "^4.0.0",
     "css-loader": "^7.1.2",
-    "cssnano": "^7.1.1",
-    "html-webpack-plugin": "^5.6.4",
-    "mini-css-extract-plugin": "^2.9.4",
-    "postcss-loader": "^8.2.0",
-    "webpack": "^5.101.3",
+    "cssnano": "^7.0.7",
+    "html-webpack-plugin": "^5.6.3",
+    "mini-css-extract-plugin": "^2.9.2",
+    "postcss-loader": "^8.1.1",
+    "webpack": "^5.99.9",
     "webpack-cli": "^6.0.1",
     "webpack-dev-server": "^5.2.2"
   }
