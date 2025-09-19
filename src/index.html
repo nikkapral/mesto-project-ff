@@ -8,12 +8,13 @@
     />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <title>Mesto</title>
+    <link rel="stylesheet" href="index.css" />
   </head>
   <body class="page">
     <div class="page__content">
       <header class="header page__section">
         <img
-          src="<%= require('./images/logo.svg')%>"
+          src="<%= require('./images/logo.svg') %>"
           alt="Логотип проекта Место"
           class="logo header__logo"
         />
@@ -21,17 +22,37 @@
       <main class="content">
         <section class="profile page__section">
           <div
-            class="profile__image"
+            class="profile__image profile__image_editable"
             style="
               background-image: url(&quot;<%= require('./images/avatar.jpg') %>&quot;);
             "
-          ></div>
+            tabindex="0"
+            role="button"
+            aria-label="Аватар пользователя, нажмите чтобы изменить"
+            id="profileAvatar"
+          >
+            <div class="profile__image-overlay" aria-hidden="true">
+              <img
+                src="<%= require('./images/edit-icon.svg') %>"
+                alt=""
+                class="profile__image-edit-icon"
+              />
+            </div>
+          </div>
           <div class="profile__info">
             <h1 class="profile__title">Жак-Ив Кусто</h1>
-            <button class="profile__edit-button" type="button"></button>
+            <button
+              class="profile__edit-button"
+              type="button"
+              aria-label="Редактировать профиль"
+            ></button>
             <p class="profile__description">Исследователь океана</p>
           </div>
-          <button class="profile__add-button" type="button"></button>
+          <button
+            class="profile__add-button"
+            type="button"
+            aria-label="Добавить место"
+          ></button>
         </section>
         <section class="places page__section">
           <ul class="places__list"></ul>
@@ -44,22 +65,44 @@
         <div class="popup__content">
           <button type="button" class="popup__close"></button>
           <h3 class="popup__title">Редактировать профиль</h3>
-          <form class="popup__form" name="edit-profile">
+          <form class="popup__form" name="edit-profile" novalidate>
             <input
               type="text"
               name="name"
               class="popup__input popup__input_type_name"
               placeholder="Имя"
               required
+              minlength="2"
+              maxlength="40"
+              id="popup__profile-name"
+              autocomplete="off"
+              data-error="Разрешены только латинские, кириллические буквы, знаки дефиса и пробелы"
             />
+            <span
+              class="popup__input-error popup__profile-name-error"
+              id="popup__profile-name-error"
+            ></span>
             <input
               type="text"
               name="description"
               class="popup__input popup__input_type_description"
               placeholder="Занятие"
               required
+              minlength="2"
+              maxlength="200"
+              id="popup__profile-job"
+              autocomplete="off"
+              data-error="Разрешены только латинские, кириллические буквы, знаки дефиса и пробелы"
             />
-            <button type="submit" class="button popup__button">
+            <span
+              class="popup__input-error popup__profile-job-error"
+              id="popup__profile-job-error"
+            ></span>
+            <button
+              type="submit"
+              class="button popup__button popup__button_disabled"
+              disabled
+            >
               Сохранить
             </button>
           </form>
@@ -69,22 +112,40 @@
         <div class="popup__content">
           <button type="button" class="popup__close"></button>
           <h3 class="popup__title">Новое место</h3>
-          <form class="popup__form" name="new-place">
+          <form class="popup__form" name="new-place" novalidate>
             <input
               type="text"
               name="place-name"
               class="popup__input popup__input_type_card-name"
               placeholder="Название"
               required
+              id="popup__card-name"
+              autocomplete="off"
+              data-error="Вы пропустили это поле."
             />
+            <span
+              class="popup__input-error popup__card-name-error"
+              id="popup__card-name-error"
+            ></span>
             <input
               type="url"
               name="link"
               class="popup__input popup__input_type_url"
               placeholder="Ссылка на картинку"
               required
+              id="popup__card-url"
+              autocomplete="off"
+              data-error="Введите адрес сайта."
             />
-            <button type="submit" class="button popup__button">
+            <span
+              class="popup__input-error popup__card-url-error"
+              id="popup__card-url-error"
+            ></span>
+            <button
+              type="submit"
+              class="button popup__button popup__button_disabled"
+              disabled
+            >
               Сохранить
             </button>
           </form>
@@ -97,14 +158,73 @@
           <p class="popup__caption"></p>
         </div>
       </div>
+      <div class="popup popup_type_edit-avatar">
+        <div class="popup__content">
+          <button type="button" class="popup__close"></button>
+          <h3 class="popup__title">Обновить аватар</h3>
+          <form class="popup__form" name="edit-avatar" novalidate>
+            <input
+              type="url"
+              name="avatar-link"
+              class="popup__input popup__input_type_avatar-url"
+              placeholder="Ссылка на новый аватар"
+              required
+              id="popup__avatar-url"
+              autocomplete="off"
+              data-error="Введите адрес сайта."
+            />
+            <span
+              class="popup__input-error popup__avatar-url-error"
+              id="popup__avatar-url-error"
+            ></span>
+            <button
+              type="submit"
+              class="button popup__button popup__button_disabled"
+              disabled
+            >
+              Сохранить
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div class="popup popup_type_confirm-delete">
+      <div class="popup__content">
+        <button
+          type="button"
+          class="popup__close"
+          aria-label="Закрыть форму"
+        ></button>
+        <h3 class="popup__title">Вы уверены?</h3>
+        <form class="popup__form" name="delete-card" novalidate>
+          <button
+            type="submit"
+            class="button popup__button"
+            aria-label="Сохранить"
+          >
+            Да
+          </button>
+        </form>
+      </div>
     </div>
     <template id="card-template">
       <li class="places__item card">
         <img class="card__image" src="" alt="" />
-        <button type="button" class="card__delete-button"></button>
+        <button
+          type="button"
+          class="card__delete-button"
+          aria-label="Удалить карточку"
+        ></button>
         <div class="card__description">
           <h2 class="card__title"></h2>
-          <button type="button" class="card__like-button"></button>
+          <div class="card__like-container">
+            <button
+              type="button"
+              class="card__like-button"
+              aria-label="Лайк"
+            ></button>
+            <span class="card__like-count">0</span>
+          </div>
         </div>
       </li>
     </template>

@@ -9,6 +9,33 @@
   margin: 0 29px 0 0;
 }
 
+.profile__image_editable {
+  position: relative;
+  cursor: pointer;
+}
+
+.profile__image-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  opacity: 0;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.25s ease;
+}
+
+.profile__image_editable:hover .profile__image-overlay,
+.profile__image_editable:focus .profile__image-overlay {
+  opacity: 1;
+}
+
+.profile__image-edit-icon {
+  width: 26px;
+  height: 26px;
+}
+
 @media screen and (max-width: 740px) {
   .profile__image {
     margin: 0 10px 0 0;
