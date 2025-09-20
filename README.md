@@ -2,4 +2,5 @@
 
 https://github.com/nikkapral/mesto-project-ff
 
-Перепроверил сборку через build и dev на другом устройстве - все успешно запустилось. Лишний index.html удалил
+github pages:
+https://nikkapral.github.io/mesto-project-ff/

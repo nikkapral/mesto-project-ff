@@ -1,84 +1,46 @@
-function showInputError(formElement, inputElement, errorMessage, config) {
+function showInputError(formElement, inputElement, config) {
   const errorElement = formElement.querySelector(`#${inputElement.id}-error`);
   if (!errorElement) return;
-
   inputElement.classList.add(config.inputErrorClass);
-  errorElement.textContent = errorMessage;
+  errorElement.textContent = inputElement.validationMessage;
   errorElement.classList.add(config.errorClass);
 }
 
 function hideInputError(formElement, inputElement, config) {
   const errorElement = formElement.querySelector(`#${inputElement.id}-error`);
   if (!errorElement) return;
-
   inputElement.classList.remove(config.inputErrorClass);
-  errorElement.textContent = '';
+  errorElement.textContent = "";
   errorElement.classList.remove(config.errorClass);
 }
 
-function checkInputValidity(formElement, inputElement, config, isFormSubmitted = false) {
-  const value = inputElement.value.trim();
-  const touched = inputElement.dataset.touched === 'true';
-  const shouldShowError = touched || isFormSubmitted;
+function checkInputValidity(formElement, inputElement, config) {
+  inputElement.setCustomValidity("");
 
-  inputElement.setCustomValidity('');
-
-  if (inputElement.validity.tooShort) {
-    const minLength = inputElement.getAttribute('minlength');
-    const lengthNow = value.length;
-    inputElement.setCustomValidity(`Минимальное количество символов: ${minLength}. Длина текста сейчас: ${lengthNow} символ.`);
-  } else if (inputElement.name === 'avatar-link') {
-    if (value === '') {
-      inputElement.setCustomValidity('Вы пропустили это поле.');
-    } else if (inputElement.validity.typeMismatch) {
-      inputElement.setCustomValidity('Введите адрес сайта.');
-    }
-  } else if (inputElement.name === 'link') {
-    if (value === '') {
-      inputElement.setCustomValidity('Вы пропустили это поле.');
-    } else if (inputElement.validity.typeMismatch) {
-      inputElement.setCustomValidity('Введите адрес сайта.');
-    }
-  } else if (inputElement.hasAttribute('data-error')) {
-    if (['name', 'description'].includes(inputElement.name)) {
-      const pattern = /^[a-zA-Zа-яА-ЯёЁ\s-]+$/;
-      if (value !== '' && !pattern.test(value)) {
-        inputElement.setCustomValidity(inputElement.dataset.error || 'Некорректный формат');
-      }
-    }
-    if (inputElement.hasAttribute('required') && value === '') {
-      inputElement.setCustomValidity('Вы пропустили это поле.');
-    }
-  } else {
-    if (inputElement.hasAttribute('required') && value === '') {
-      inputElement.setCustomValidity('Вы пропустили это поле.');
-    }
+  if (
+    inputElement.validity.patternMismatch &&
+    inputElement.hasAttribute("pattern")
+  ) {
+    const msg =
+      inputElement.dataset.patternMessage || inputElement.validationMessage;
+    inputElement.setCustomValidity(msg);
   }
 
   if (!inputElement.validity.valid) {
-    if (shouldShowError) {
-      showInputError(formElement, inputElement, inputElement.validationMessage, config);
-    } else {
-      hideInputError(formElement, inputElement, config);
-    }
+    showInputError(formElement, inputElement, config);
     return false;
   }
-
   hideInputError(formElement, inputElement, config);
   return true;
 }
 
-function hasInvalidInput(inputList, config, isFormSubmitted = false) {
-  return inputList.some(inputElement => !checkInputValidity(
-    inputElement.closest(config.formSelector),
-    inputElement,
-    config,
-    isFormSubmitted
-  ));
+function hasInvalidInput(inputList) {
+  return inputList.some((input) => !input.validity.valid);
 }
 
-function toggleButtonState(inputList, buttonElement, config, isFormSubmitted = false) {
-  if (hasInvalidInput(inputList, config, isFormSubmitted)) {
+function toggleButtonState(inputList, buttonElement, config) {
+  if (!buttonElement) return;
+  if (hasInvalidInput(inputList)) {
     buttonElement.classList.add(config.inactiveButtonClass);
     buttonElement.disabled = true;
   } else {
@@ -88,61 +50,35 @@ function toggleButtonState(inputList, buttonElement, config, isFormSubmitted = f
 }
 
 function setEventListeners(formElement, config) {
-  const inputList = Array.from(formElement.querySelectorAll(config.inputSelector));
+  const inputList = Array.from(
+    formElement.querySelectorAll(config.inputSelector),
+  );
   const buttonElement = formElement.querySelector(config.submitButtonSelector);
 
   toggleButtonState(inputList, buttonElement, config);
 
-  inputList.forEach((inputElement) => {
-    inputElement.dataset.touched = 'false';
-
-    inputElement.addEventListener('input', () => {
-      inputElement.dataset.touched = 'true';
-      checkInputValidity(formElement, inputElement, config);
+  inputList.forEach((input) => {
+    const validate = () => {
+      checkInputValidity(formElement, input, config);
       toggleButtonState(inputList, buttonElement, config);
-    });
-
-    inputElement.addEventListener('blur', () => {
-      inputElement.dataset.touched = 'true';
-      checkInputValidity(formElement, inputElement, config);
-      toggleButtonState(inputList, buttonElement, config);
-    });
+    };
+    input.addEventListener("input", validate);
+    input.addEventListener("blur", validate);
   });
 }
 
 function enableValidation(config) {
   const formList = Array.from(document.querySelectorAll(config.formSelector));
-  formList.forEach(formElement => {
-    formElement.addEventListener('submit', (evt) => {
-      evt.preventDefault();
-
-      const inputList = Array.from(formElement.querySelectorAll(config.inputSelector));
-      const buttonElement = formElement.querySelector(config.submitButtonSelector);
-
-      inputList.forEach(input => {
-        input.dataset.touched = 'true';
-        checkInputValidity(formElement, input, config, true);
-      });
-
-      toggleButtonState(inputList, buttonElement, config, true);
-
-      if (!hasInvalidInput(inputList, config, true)) {
-        formElement.dispatchEvent(new Event('formValid'));
-      }
-    });
-    setEventListeners(formElement, config);
-  });
+  formList.forEach((formElement) => setEventListeners(formElement, config));
 }
 
 function clearValidation(formElement, config) {
-  const inputList = Array.from(formElement.querySelectorAll(config.inputSelector));
+  const inputList = Array.from(
+    formElement.querySelectorAll(config.inputSelector),
+  );
   const buttonElement = formElement.querySelector(config.submitButtonSelector);
 
-  inputList.forEach(inputElement => {
-    inputElement.dataset.touched = 'false';
-    hideInputError(formElement, inputElement, config);
-  });
-
+  inputList.forEach((input) => hideInputError(formElement, input, config));
   toggleButtonState(inputList, buttonElement, config);
 }
 
@@ -150,5 +86,5 @@ export {
   enableValidation,
   clearValidation,
   toggleButtonState,
-  checkInputValidity
+  checkInputValidity,
 };

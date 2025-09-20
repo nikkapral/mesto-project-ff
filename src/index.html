@@ -119,9 +119,12 @@
               class="popup__input popup__input_type_card-name"
               placeholder="Название"
               required
+              minlength="2"
+              maxlength="30"
               id="popup__card-name"
               autocomplete="off"
-              data-error="Вы пропустили это поле."
+              pattern="^[A-Za-zА-Яа-яЁё\s-]+$"
+              data-pattern-message="Допустимы только буквы, пробел и дефис."
             />
             <span
               class="popup__input-error popup__card-name-error"
